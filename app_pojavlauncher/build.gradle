@@ -62,6 +62,16 @@ def getCFApiKey = {
     return "DUMMY";
 }
 
+def getReleaseSigningPassword = {
+    String password = System.getenv("GPLAY_KEYSTORE_PASSWORD");
+    if (password != null && !password.trim().isEmpty()) return password;
+    return null;
+}
+
+def hasReleaseSigningConfig = {
+    return getReleaseSigningPassword() != null && file("aamc_upload.jks").exists();
+}
+
 configurations {
     instrumentedClasspath {
         canBeConsumed = false
@@ -76,6 +86,7 @@ android {
 
     lintOptions {
         abortOnError false
+        disable 'ExtraTranslation'
     }
 
     signingConfigs {
@@ -87,15 +98,15 @@ android {
         }
         customRelease {
             storeFile file("aamc_upload.jks")
-            storePassword System.getenv("GPLAY_KEYSTORE_PASSWORD")
+            storePassword getReleaseSigningPassword()
             keyAlias "android_github_release"
-            keyPassword System.getenv("GPLAY_KEYSTORE_PASSWORD")
+            keyPassword getReleaseSigningPassword()
         }
         googlePlayBuild {
             storeFile file("upload.jks")
-            storePassword System.getenv("GPLAY_KEYSTORE_PASSWORD")
+            storePassword getReleaseSigningPassword()
             keyAlias "upload"
-            keyPassword System.getenv("GPLAY_KEYSTORE_PASSWORD")
+            keyPassword getReleaseSigningPassword()
         }
     }
 
@@ -132,7 +143,7 @@ android {
             // Don't set to true or java.awt will be a.a or something similar.
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.customRelease
+            signingConfig hasReleaseSigningConfig() ? signingConfigs.customRelease : signingConfigs.customDebug
             // defaultConfig already set
             // multiDexEnabled = true
             // debuggable = true
@@ -145,7 +156,7 @@ android {
             initWith release
             applicationIdSuffix '.vr'
             matchingFallbacks = [ 'release' ]
-            signingConfig signingConfigs.customRelease
+            signingConfig hasReleaseSigningConfig() ? signingConfigs.customRelease : signingConfigs.customDebug
             resValue "string", "app_name", "Amethyst (VR)"
             resValue "string", "app_short_name", "Amethyst (VR)"
             resValue 'string', 'application_package', 'org.angelauramc.amethyst.vr'
@@ -163,7 +174,7 @@ android {
         }
         gplay {
             initWith release
-            signingConfig signingConfigs.googlePlayBuild
+            signingConfig hasReleaseSigningConfig() ? signingConfigs.googlePlayBuild : signingConfigs.customDebug
             matchingFallbacks = [ 'release' ]
         }
     }
