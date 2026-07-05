@@ -1,21 +1,85 @@
 package net.kdt.pojavlaunch;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import net.kdt.pojavlaunch.prefs.LauncherPreferences;
+import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
+
 public class VrLauncherActivity extends LauncherActivity {
+    private static final int REQUEST_STORAGE_REQUEST_CODE = 2;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (needsStoragePermission()) {
+            requestStoragePermission();
+            return;
+        }
+
+        initializeRuntime();
         super.onCreate(savedInstanceState);
         enableVrShell();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_STORAGE_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                initializeRuntime();
+                super.onCreate(null);
+                enableVrShell();
+            } else {
+                Toast.makeText(this, R.string.toast_permission_denied, Toast.LENGTH_LONG).show();
+                requestStoragePermission();
+            }
+        }
+    }
+
+    private boolean needsStoragePermission() {
+        return Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT < 29
+                && !isStorageAllowed(this);
+    }
+
+    private boolean isStorageAllowed(android.content.Context context) {
+        int result1 = ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int result2 = ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE);
+        return result1 == PackageManager.PERMISSION_GRANTED && result2 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(this, new String[]{
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+        }, REQUEST_STORAGE_REQUEST_CODE);
+    }
+
+    private void initializeRuntime() {
+        if (!Tools.checkStorageRoot(this)) {
+            startActivity(new Intent(this, MissingStorageActivity.class));
+            finish();
+            return;
+        }
+
+        LauncherPreferences.loadPreferences(this);
+        AsyncAssetManager.unpackComponents(this);
+        AsyncAssetManager.unpackSingleFiles(this);
     }
 
     private void enableVrShell() {
