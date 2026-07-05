@@ -66,7 +66,12 @@ public class TestStorageActivity extends Activity {
         AsyncAssetManager.unpackComponents(this);
         AsyncAssetManager.unpackSingleFiles(this);
 
-        Intent intent =  new Intent(this, LauncherActivity.class);
+        Intent intent;
+        if (BuildConfig.BUILD_TYPE.equals("vr")) {
+            intent = new Intent(this, VrLauncherActivity.class);
+        } else {
+            intent = new Intent(this, LauncherActivity.class);
+        }
         startActivity(intent);
         finish();
     }

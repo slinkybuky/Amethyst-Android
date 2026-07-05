@@ -128,16 +128,6 @@ android {
             resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder.debug'
             resValue 'string', 'shareProviderAuthority', 'org.angelauramc.amethyst.scoped.controlfolder.debug'
         }
-        proguard {
-            initWith debug
-            minifyEnabled true
-            shrinkResources true
-        }
-        proguardNoDebug {
-            initWith proguard
-            debuggable false
-        }
-
         release {
             // Don't set to true or java.awt will be a.a or something similar.
             minifyEnabled false
@@ -150,6 +140,26 @@ android {
             resValue "string", "app_short_name", "Amethyst"
             resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder'
             resValue 'string', 'application_package', 'org.angelauramc.amethyst'
+        }
+        vr {
+            initWith release
+            applicationIdSuffix '.vr'
+            matchingFallbacks = [ 'release' ]
+            signingConfig signingConfigs.customRelease
+            resValue "string", "app_name", "Amethyst (VR)"
+            resValue "string", "app_short_name", "Amethyst (VR)"
+            resValue 'string', 'application_package', 'org.angelauramc.amethyst.vr'
+            resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder.vr'
+            resValue 'string', 'shareProviderAuthority', 'org.angelauramc.amethyst.scoped.controlfolder.vr'
+        }
+        proguard {
+            initWith debug
+            minifyEnabled true
+            shrinkResources true
+        }
+        proguardNoDebug {
+            initWith proguard
+            debuggable false
         }
         gplay {
             initWith release
@@ -193,6 +203,14 @@ android {
     }
 
     buildToolsVersion = '34.0.0'
+}
+
+android.applicationVariants.all { variant ->
+    if (variant.buildType.name == 'vr') {
+        variant.outputs.all { output ->
+            output.outputFileName = "app_pojavlauncher-${variant.buildType.name}.apk"
+        }
+    }
 }
 
 afterEvaluate {

@@ -84,9 +84,15 @@ jobs:
           gradle :app_pojavlauncher:assembleRelease
           mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk out/app-release.apk
 
+      - name: Build VR .apk
+        run: |
+          gradle :app_pojavlauncher:assembleVr
+          mv app_pojavlauncher/build/outputs/apk/vr/app_pojavlauncher-vr.apk out/app-vr.apk
+
       - name: Gen md5sums
         run: |
           md5sum out/app-release.apk > out/app-release.md5
+          md5sum out/app-vr.apk > out/app-vr.md5
 
       - name: Build Debug .apk
         run: |
@@ -109,3 +115,9 @@ jobs:
         with:
           name: app-release
           path: out/app-release.*
+
+      - name: Upload VR APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-vr (Amethyst (VR))
+          path: out/app-vr.*
