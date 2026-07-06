@@ -85,14 +85,15 @@ LOCAL_SHARED_LIBRARIES := awt_headless
 LOCAL_SRC_FILES := xawt_fake.c
 include $(BUILD_SHARED_LIBRARY)
 
-# delete fake libs after linked
-$(info $(shell (rm $(HERE_PATH)/../jniLibs/*/libawt_headless.so)))
+# delete fake libs after linked (ignore errors if file not present)
+$(shell rm -f $(HERE_PATH)/../jniLibs/*/libawt_headless.so 2>/dev/null || true)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := amethyst_vr
 LOCAL_LDLIBS := -ldl -llog -landroid
-LOCAL_SRC_FILES := ../cpp/openxr_bridge.cpp
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/../cpp
+# Use the original HERE_PATH (the jni root) to locate the cpp source which lives in ../cpp
+LOCAL_SRC_FILES := $(HERE_PATH)/../cpp/openxr_bridge.cpp
+LOCAL_C_INCLUDES := $(HERE_PATH)/../cpp
 LOCAL_CPPFLAGS += -std=c++11 -frtti -fexceptions
 include $(BUILD_SHARED_LIBRARY)
 
