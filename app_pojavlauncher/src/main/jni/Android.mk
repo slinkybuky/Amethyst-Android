@@ -88,3 +88,11 @@ include $(BUILD_SHARED_LIBRARY)
 # delete fake libs after linked
 $(info $(shell (rm $(HERE_PATH)/../jniLibs/*/libawt_headless.so)))
 
+include $(CLEAR_VARS)
+LOCAL_MODULE := amethyst_vr
+LOCAL_LDLIBS := -ldl -llog -landroid
+LOCAL_SRC_FILES := ../cpp/openxr_bridge.cpp
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../cpp
+LOCAL_CPPFLAGS += -std=c++11 -frtti -fexceptions
+include $(BUILD_SHARED_LIBRARY)
+
