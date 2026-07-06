@@ -118,6 +118,8 @@ android {
         versionName getVersionName()
         multiDexEnabled true //important
         resValue 'string', 'curseforge_api_key', getCFApiKey()
+        // Restrict packaged resources to English for now to avoid localization format merge errors
+        resConfigs "en"
         externalNativeBuild {
             ndkBuild {
                 // Fix for Windows command line length limit
@@ -162,8 +164,6 @@ android {
             resValue 'string', 'application_package', 'org.angelauramc.amethyst.vr'
             resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder.vr'
             resValue 'string', 'shareProviderAuthority', 'org.angelauramc.amethyst.scoped.controlfolder.vr'
-            // Restrict packaged locales for VR build to avoid localization format merge errors
-            resConfigs "en"
         }
         proguard {
             initWith debug
