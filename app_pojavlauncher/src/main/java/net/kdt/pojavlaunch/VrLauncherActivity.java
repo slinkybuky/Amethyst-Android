@@ -24,6 +24,20 @@ import net.kdt.pojavlaunch.tasks.AsyncAssetManager;
 
 public class VrLauncherActivity extends LauncherActivity {
     private static final int REQUEST_STORAGE_REQUEST_CODE = 2;
+    static {
+        try {
+            System.loadLibrary("amethyst_vr");
+        } catch (UnsatisfiedLinkError e) {
+            // library may not be available on non-native builds
+        }
+    }
+
+    // JNI bridge
+    private native boolean nativeInitOpenXR();
+    private native boolean nativeStartOpenXRSession();
+    private native void nativeStopOpenXRSession();
+
+    private boolean openxrAvailable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,5 +144,26 @@ public class VrLauncherActivity extends LauncherActivity {
         contentRoot.addView(vrBadge, params);
         vrBadge.setX(24f);
         vrBadge.setY(24f);
+
+        // Try to initialize OpenXR native bridge; if available, start the session.
+        new Thread(() -> {
+            try {
+                openxrAvailable = nativeInitOpenXR();
+                if (openxrAvailable) {
+                    boolean started = nativeStartOpenXRSession();
+                    if (!started) openxrAvailable = false;
+                }
+            } catch (Throwable t) {
+                // ignore - native bridge may be missing on some environments
+            }
+        }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            if (openxrAvailable) nativeStopOpenXRSession();
+        } catch (Throwable ignored) {}
     }
 }

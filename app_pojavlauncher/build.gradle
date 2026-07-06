@@ -187,6 +187,9 @@ android {
         ndkBuild {
             path file('src/main/jni/Android.mk')
         }
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+        }
     }
 
     compileOptions {
