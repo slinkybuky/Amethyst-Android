@@ -162,6 +162,8 @@ android {
             resValue 'string', 'application_package', 'org.angelauramc.amethyst.vr'
             resValue 'string', 'storageProviderAuthorities', 'org.angelauramc.amethyst.scoped.gamefolder.vr'
             resValue 'string', 'shareProviderAuthority', 'org.angelauramc.amethyst.scoped.controlfolder.vr'
+            // Restrict packaged locales for VR build to avoid localization format merge errors
+            resConfigs "en"
         }
         proguard {
             initWith debug

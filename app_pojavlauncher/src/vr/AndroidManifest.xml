@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -10,6 +11,7 @@
         <activity
             android:name=".VrLauncherActivity"
             android:exported="true"
+            tools:replace="android:exported"
             android:label="@string/app_short_name"
             android:launchMode="singleTop"
             android:screenOrientation="landscape">
