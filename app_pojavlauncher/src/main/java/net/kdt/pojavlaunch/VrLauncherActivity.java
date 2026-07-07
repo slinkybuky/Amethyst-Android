@@ -1,7 +1,9 @@
 package net.kdt.pojavlaunch;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
@@ -41,6 +43,8 @@ public class VrLauncherActivity extends LauncherActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setupVrWindow();
+
         if (needsStoragePermission()) {
             requestStoragePermission();
             return;
@@ -96,12 +100,19 @@ public class VrLauncherActivity extends LauncherActivity {
         AsyncAssetManager.unpackSingleFiles(this);
     }
 
-    private void enableVrShell() {
+    private void setupVrWindow() {
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+
         Window window = getWindow();
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         window.setBackgroundDrawable(null);
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         View decorView = window.getDecorView();
+        decorView.setFitsSystemWindows(false);
         decorView.setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -114,22 +125,25 @@ public class VrLauncherActivity extends LauncherActivity {
         WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, decorView);
         controller.hide(WindowInsetsCompat.Type.systemBars());
         controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
 
+    private void enableVrShell() {
         ViewGroup contentRoot = findViewById(android.R.id.content);
         if (contentRoot == null) return;
 
         View contentView = contentRoot.getChildAt(0);
         if (contentView != null) {
-            contentView.setScaleX(1.06f);
-            contentView.setScaleY(1.06f);
-            contentView.setRotationX(4f);
-            contentView.setRotationY(-8f);
-            contentView.setTranslationZ(8f);
             contentView.setBackgroundColor(Color.BLACK);
+            contentView.setFitsSystemWindows(false);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) contentView.getLayoutParams();
+            if (params != null) {
+                params.setMargins(0, 0, 0, 0);
+                contentView.setLayoutParams(params);
+            }
         }
 
         TextView vrBadge = new TextView(this);
-        vrBadge.setText("OpenXR");
+        vrBadge.setText("VR Shell");
         vrBadge.setTextColor(Color.WHITE);
         vrBadge.setTextSize(20f);
         vrBadge.setPadding(24, 16, 24, 16);
