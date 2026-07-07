@@ -90,10 +90,10 @@ $(shell rm -f $(HERE_PATH)/../jniLibs/*/libawt_headless.so 2>/dev/null || true)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := amethyst_vr
-LOCAL_LDLIBS := -ldl -llog -landroid
+LOCAL_LDLIBS := -ldl -llog -landroid -lEGL -lGLESv2
 # Use the original HERE_PATH (the jni root) to locate the cpp source which lives in ../cpp
 LOCAL_SRC_FILES := $(HERE_PATH)/../cpp/openxr_bridge.cpp
-LOCAL_C_INCLUDES := $(HERE_PATH)/../cpp
+LOCAL_C_INCLUDES := $(HERE_PATH)/../cpp $(HERE_PATH)/../cpp/openxr/include/openxr
 LOCAL_CPPFLAGS += -std=c++11 -frtti -fexceptions
 include $(BUILD_SHARED_LIBRARY)
 
